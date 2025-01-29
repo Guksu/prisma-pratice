@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int        @id @default(autoincrement())
+  username   String     @unique
+  email      String?    @unique
+  password   String?
+  phone      String?    @unique
+  github_id  String?    @unique
+  avatar     String?
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  SMSToken   SMSToken[]
+}
+
+model SMSToken {
+  id         Int      @id @default(autoincrement())
+  token      String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  // Cascade: 참조 레코드를 삭제하면 참조 레코드의 삭제가 트리거.
+  // Restrict: 참조 레코드가 있는 경우 삭제를 방지.
+  // NoAction: Restrict과 유사하지만 사용 중인 데이터베이스에 따라 다릅.
+  // SetNull: 참조 필드가 NULL로 설정. (optional일 때만 정상 작동)
+  // SetDefault: 참조 필드가 기본값으로 설정.
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+}
